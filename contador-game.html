@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador Challenge: Aventura Financiera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-800 mb-2">
+                <span class="float-animation inline-block">🧮</span> 
+                Contador Challenge 
+                <span class="float-animation inline-block">💼</span>
+            </h1>
+            <p class="text-gray-600 text-lg">¡Tu aventura hacia el mundo de la contaduría pública!</p>
+        </header>
+
+        <!-- Game Container -->
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Game Navigation -->
+            <div class="bg-indigo-800 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold">Nivel: <span id="nivel">1</span></span>
+                </div>
+                <div class="flex space-x-4 items-center">
+                    <div class="flex items-center">
+                        <i class="fas fa-coins text-yellow-300 mr-2"></i>
+                        <span id="monedas" class="font-bold">0</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-star text-yellow-300 mr-2"></i>
+                        <span id="puntaje" class="font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Screens -->
+            <div id="pantallas" class="p-6">
+                <!-- Welcome Screen -->
+                <div id="pantallaInicio" class="text-center py-8">
+                    <img src="/api/placeholder/400/240" alt="Contador Challenge" class="mx-auto mb-6 rounded-lg shadow-md">
+                    <h2 class="text-3xl font-bold text-indigo-700 mb-4">¡Bienvenido al Contador Challenge!</h2>
+                    <p class="text-gray-600 mb-6 max-w-2xl mx-auto">Conviértete en el mejor contador público resolviendo desafíos financieros, tomando decisiones estratégicas y aprendiendo mientras te diviertes.</p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button id="btnQuiz" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center">
+                            <i class="fas fa-question-circle mr-2"></i> Quiz Contable
+                        </button>
+                        <button id="btnSimulador" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center">
+                            <i class="fas fa-calculator mr-2"></i> Simulador Empresarial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Screen -->
+                <div id="pantallaQuiz" class="hidden">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-2xl font-bold text-indigo-700">Desafío Contable</h3>
+                            <span class="bg-indigo-100 text-indigo-800 py-1 px-3 rounded-full text-sm font-medium">
+                                Pregunta <span id="preguntaActual">1</span>/<span id="totalPreguntas">10</span>
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="progressBar" class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                    <div id="contenedorPregunta" class="bg-indigo-50 p-6 rounded-xl mb-6 shadow-sm">
+                        <h3 id="pregunta" class="text-xl font-semibold text-gray-800 mb-4"></h3>
+                        <div id="opciones" class="grid grid-cols-1 gap-3"></div>
+                    </div>
+
+                    <div id="explicacion" class="hidden bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+                        <h4 class="font-bold text-blue-700 mb-2">Explicación:</h4>
+                        <p id="textoExplicacion" class="text-blue-800"></p>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button id="btnVolverInicio" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-home mr-2"></i> Volver al Inicio
+                        </button>
+                        <button id="siguientePregunta" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                            Siguiente <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simulador Screen -->
+                <div id="pantallaSimulador" class="hidden">
+                    <h3 class="text-2xl font-bold text-green-700 mb-6">Simulador Empresarial: Tu Despacho Contable</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Tu Despacho Contable</h4>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-600 mb-2">Ingresos mensuales:</label>
+                                    <div class="flex items-center">
+                                        <span class="bg-gray-100 p-2 rounded-l-lg text-gray-500">$</span>
+                                        <input type="number" id="ingresos" value="10000" min="0" 
+                                            class="w-full border-gray-300 border p-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-600 mb-2">Gastos operativos:</label>
+                                    <div class="flex items-center">
+                                        <span class="bg-gray-100 p-2 rounded-l-lg text-gray-500">$</span>
+                                        <input type="number" id="gastos" value="6000" min="0"
+                                            class="w-full border-gray-300 border p-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-600 mb-2">Inversión en marketing:</label>
+                                    <div class="flex items-center">
+                                        <span class="bg-gray-100 p-2 rounded-l-lg text-gray-500">$</span>
+                                        <input type="number" id="marketing" value="1000" min="0"
+                                            class="w-full border-gray-300 border p-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-600 mb-2">Clientes atendidos:</label>
+                                    <div class="flex items-center">
+                                        <span class="bg-gray-100 p-2 rounded-l-lg text-gray-500"><i class="fas fa-users"></i></span>
+                                        <input type="number" id="clientes" value="5" min="1" max="20"
+                                            class="w-full border-gray-300 border p-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="resultado" class="bg-gradient-to-br from-green-50 to-blue-50 p-5 rounded-xl shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Resultados del Periodo</h4>
+                            <div id="resultadoContenido" class="space-y-3">
+                                <p class="text-center text-gray-500 italic">Completa los datos y calcula para ver los resultados</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button id="btnVolverInicioSim" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-home mr-2"></i> Volver al Inicio
+                        </button>
+                        <button id="btnCalcular" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-calculator mr-2"></i> Calcular Resultados
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Results Screen -->
+                <div id="pantallaResultados" class="hidden text-center py-8">
+                    <div class="mb-6 animation-bounce">
+                        <span id="iconoResultado" class="text-6xl block mb-4"></span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-indigo-700 mb-4">¡Desafío Completado!</h2>
+                    <div id="resumenResultados" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg mb-6"></div>
+                    <div class="flex justify-center gap-4">
+                        <button id="btnReiniciarQuiz" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-redo mr-2"></i> Intentar Nuevamente
+                        </button>
+                        <button id="btnVolverInicioRes" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-home mr-2"></i> Volver al Inicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>Diseñado para inspirar a futuros profesionales de la Contaduría Pública</p>
+        </footer>
+    </div>
+
+    <script>
+        // Banco de preguntas ampliado con explicaciones
+        const preguntas = [
+            {
+                texto: "¿Qué representa un activo en contabilidad?",
+                opciones: ["Una deuda que debe pagarse", "Un bien o recurso con valor económico", "Un gasto operativo mensual", "Una obligación con los accionistas"],
+                correcta: 1,
+                explicacion: "Los activos son recursos controlados por la empresa como resultado de eventos pasados, de los cuales se espera obtener beneficios económicos futuros. Ejemplos: efectivo, inventario, edificios, maquinaria."
+            },
+            {
+                texto: "El IVA (Impuesto al Valor Agregado) es un tipo de:",
+                opciones: ["Impuesto directo sobre la renta", "Impuesto indirecto sobre el consumo", "Contribución especial para infraestructura", "Activo intangible de las empresas"],
+                correcta: 1,
+                explicacion: "El IVA es un impuesto indirecto que grava el consumo. Se aplica en cada etapa de la cadena de producción y distribución, pero el consumidor final es quien realmente lo paga."
+            },
+            {
+                texto: "¿Qué muestra principalmente un Estado de Resultados?",
+                opciones: ["La posición de activos y pasivos", "Las ganancias y pérdidas durante un periodo", "El flujo de efectivo operativo", "El capital social de la empresa"],
+                correcta: 1,
+                explicacion: "El Estado de Resultados muestra los ingresos, gastos y la utilidad o pérdida neta de una empresa durante un periodo específico. Permite evaluar la rentabilidad y desempeño financiero."
+            },
+            {
+                texto: "La depreciación es un concepto que representa:",
+                opciones: ["El aumento de valor de un activo con el tiempo", "La pérdida de valor de un activo con el uso", "Un ingreso extraordinario", "Un tipo de préstamo financiero"],
+                correcta: 1,
+                explicacion: "La depreciación representa la disminución en el valor de un activo a lo largo del tiempo debido al uso, desgaste u obsolescencia. Es un gasto que no implica salida de efectivo pero afecta el resultado."
+            },
+            {
+                texto: "¿Qué es el patrimonio neto en una empresa?",
+                opciones: ["El total de deudas con proveedores", "La diferencia entre activos y pasivos", "Los impuestos por pagar", "El capital inicial invertido"],
+                correcta: 1,
+                explicacion: "El patrimonio neto (también llamado capital contable) representa el valor residual de los activos de la entidad, después de deducir todos sus pasivos. Es lo que realmente pertenece a los dueños."
+            },
+            {
+                texto: "El principio de partida doble establece que:",
+                opciones: ["Cada empresa debe tener dos contadores", "Toda transacción afecta al menos dos cuentas", "Todo ingreso genera el doble de impuestos", "Los estados financieros se presentan cada dos meses"],
+                correcta: 1,
+                explicacion: "El principio de partida doble es fundamental en contabilidad: establece que toda transacción económica tiene un doble efecto en las cuentas (debe y haber), y la suma de los débitos debe ser igual a la suma de los créditos."
+            },
+            {
+                texto: "¿Qué refleja el balance general de una empresa?",
+                opciones: ["Solo los ingresos y gastos del mes", "La situación financiera en un momento específico", "Las ventas proyectadas para el próximo año", "El historial crediticio de los clientes"],
+                correcta: 1,
+                explicacion: "El Balance General (o Estado de Situación Financiera) muestra los activos, pasivos y patrimonio de una empresa en un momento específico, como una 'fotografía' de su situación financiera."
+            },
+            {
+                texto: "Las cuentas por cobrar se clasifican como:",
+                opciones: ["Pasivo circulante", "Activo circulante", "Capital contable", "Gasto operativo"],
+                correcta: 1,
+                explicacion: "Las cuentas por cobrar son derechos que tiene la empresa para recibir efectivo u otros activos financieros de sus clientes. Se clasifican como activo circulante porque normalmente se convertirán en efectivo en menos de un año."
+            },
+            {
+                texto: "¿Qué es el capital de trabajo?",
+                opciones: ["El valor de los muebles de oficina", "La diferencia entre activos y pasivos circulantes", "El sueldo total de los empleados", "El dinero invertido en publicidad"],
+                correcta: 1,
+                explicacion: "El capital de trabajo es la diferencia entre los activos circulantes y los pasivos circulantes. Representa la capacidad de la empresa para operar en el corto plazo y enfrentar sus obligaciones inmediatas."
+            },
+            {
+                texto: "El punto de equilibrio es el punto donde:",
+                opciones: ["La empresa no tiene deudas", "Los ingresos igualan a los gastos", "Se maximizan las ganancias", "Termina el año fiscal"],
+                correcta: 1,
+                explicacion: "El punto de equilibrio es el nivel de ventas donde los ingresos totales igualan a los costos totales, resultando en una utilidad de cero. Es importante para determinar cuánto debe vender la empresa para comenzar a generar utilidades."
+            },
+            {
+                texto: "Un pasivo representa:",
+                opciones: ["Un bien que posee la empresa", "Una obligación o deuda", "Una ganancia futura", "Una inversión realizada"],
+                correcta: 1,
+                explicacion: "Los pasivos son obligaciones presentes de la empresa, surgidas de eventos pasados, cuya liquidación se espera que resulte en una salida de recursos económicos. Ejemplos: préstamos, cuentas por pagar, impuestos por pagar."
+            },
+            {
+                texto: "¿Qué es la contabilidad de costos?",
+                opciones: ["El registro de clientes morosos", "La rama que analiza los costos de producción", "El control de gastos personales", "La auditoría de estados financieros"],
+                correcta: 1,
+                explicacion: "La contabilidad de costos es una rama especializada que se enfoca en registrar, clasificar, asignar y analizar los costos asociados con la producción de bienes o prestación de servicios. Ayuda a la toma de decisiones gerenciales."
+            },
+            {
+                texto: "La razón de liquidez indica:",
+                opciones: ["La capacidad para pagar dividendos", "La capacidad para pagar deudas a corto plazo", "La rentabilidad sobre ventas", "El valor de la marca en el mercado"],
+                correcta: 1,
+                explicacion: "La razón de liquidez (o ratio de liquidez) mide la capacidad de una empresa para cumplir con sus obligaciones a corto plazo. La más común es la razón corriente: activos circulantes ÷ pasivos circulantes."
+            },
+            {
+                texto: "Un asiento de diario representa:",
+                opciones: ["El calendario tributario", "El registro de una transacción contable", "Un plan de negocios", "El horario de trabajo del contador"],
+                correcta: 1,
+                explicacion: "Un asiento de diario (o asiento contable) es el registro formal de una transacción económica en el sistema contable. Incluye fecha, cuentas afectadas, montos, y respeta el principio de partida doble."
+            },
+            {
+                texto: "¿Cuál de estos NO es un estado financiero básico?",
+                opciones: ["Estado de Resultados", "Balance General", "Estado de Flujo de Efectivo", "Reporte de Ventas por Vendedor"],
+                correcta: 3,
+                explicacion: "Los estados financieros básicos son: Balance General, Estado de Resultados, Estado de Cambios en el Patrimonio y Estado de Flujo de Efectivo. El Reporte de Ventas por Vendedor es un informe gerencial interno, no un estado financiero básico."
+            },
+            {
+                texto: "El margen de contribución es:",
+                opciones: ["Un donativo a una fundación", "La diferencia entre el precio de venta y el costo variable", "El porcentaje de ganancia del vendedor", "Un impuesto adicional"],
+                correcta: 1,
+                explicacion: "El margen de contribución es la diferencia entre el precio de venta y los costos variables por unidad. Representa cuánto contribuye cada unidad vendida para cubrir los costos fijos y generar utilidad."
+            },
+            {
+                texto: "Los principios de contabilidad generalmente aceptados (PCGA) son:",
+                opciones: ["Leyes fiscales obligatorias", "Reglas y directrices para la preparación de estados financieros", "Métodos de cálculo de impuestos", "Procedimientos de auditoría interna"],
+                correcta: 1,
+                explicacion: "Los PCGA (o GAAP en inglés) son un conjunto de reglas, normas y convenciones que establecen cómo deben prepararse y presentarse los estados financieros. Buscan estandarizar la información financiera para que sea comparable y confiable."
+            },
+            {
+                texto: "¿Qué es el ciclo contable?",
+                opciones: ["El periodo de rotación de inventarios", "La secuencia de procedimientos para procesar datos contables", "El tiempo que tardan las cuentas por cobrar", "La vida útil de los activos fijos"],
+                correcta: 1,
+                explicacion: "El ciclo contable es la secuencia completa de procedimientos contables que se realizan para procesar la información financiera: desde el registro de transacciones hasta la preparación de estados financieros y el cierre del periodo."
+            },
+            {
+                texto: "La NIIF (Normas Internacionales de Información Financiera) son emitidas por:",
+                opciones: ["La ONU", "El Banco Mundial", "El IASB (Consejo de Normas Internacionales de Contabilidad)", "El gobierno federal"],
+                correcta: 2,
+                explicacion: "Las NIIF (o IFRS en inglés) son emitidas por el IASB (International Accounting Standards Board). Son estándares técnicos contables adoptados por muchos países para hacer los reportes financieros consistentes, transparables y comparables globalmente."
+            },
+            {
+                texto: "¿Qué es un activo diferido?",
+                opciones: ["Un bien que se venderá inmediatamente", "Un gasto pagado por anticipado", "Una deuda a largo plazo", "Un descuento para clientes frecuentes"],
+                correcta: 1,
+                explicacion: "Los activos diferidos son gastos ya realizados que se difieren o aplazan para ser registrados como gasto en periodos futuros. Ejemplos: seguros pagados por anticipado, rentas prepagadas, o gastos de instalación."
+            }
+        ];
+
+        // Variables globales
+        let preguntaActual = 0;
+        let puntaje = 0;
+        let monedas = 0;
+        let nivel = 1;
+
+        // Función para mostrar una sección y ocultar las demás
+        function mostrarPantalla(idPantalla) {
+            const pantallas = ['pantallaInicio', 'pantallaQuiz', 'pantallaSimulador', 'pantallaResultados'];
+            pantallas.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(idPantalla).classList.remove('hidden');
+        }
+
+        // Inicializar la navegación
+        document.getElementById('btnQuiz').addEventListener('click', () => {
+            mostrarPantalla('pantallaQuiz');
+            iniciarQuiz();
+        });
+
+        document.getElementById('btnSimulador').addEventListener('click', () => {
+            mostrarPantalla('pantallaSimulador');
+        });
+
+        document.getElementById('btnVolverInicio').addEventListener('click', () => {
+            mostrarPantalla('pantallaInicio');
+        });
+
+        document.getElementById('btnVolverInicioSim').addEventListener('click', () => {
+            mostrarPantalla('pantallaInicio');
+        });
+
+        document.getElementById('btnVolverInicioRes').addEventListener('click', () => {
+            mostrarPantalla('pantallaInicio');
+        });
+
+        document.getElementById('btnReiniciarQuiz').addEventListener('click', () => {
+            mostrarPantalla('pantallaQuiz');
+            iniciarQuiz();
+        });
+
+        // Función para iniciar el Quiz
+        function iniciarQuiz() {
+            preguntaActual = 0;
+            puntaje = 0;
+            document.getElementById('puntaje').innerText = puntaje;
+            
+            // Mezclar preguntas aleatoriamente
+            shuffle(preguntas);
+            
+            // Configurar el total de preguntas
+            const totalPreguntas = Math.min(10, preguntas.length); // Limitar a 10 preguntas por sesión
+            document.getElementById('totalPreguntas').innerText = totalPreguntas;
+            
+            // Mostrar primera pregunta
+            mostrarPregunta();
+        }
+
+        // Función para mostrar la pregunta actual
+        function mostrarPregunta() {
+            // Ocultar la explicación
+            document.getElementById('explicacion').classList.add('hidden');
+            
+            // Actualizar número de pregunta y barra de progreso
+            const totalPreguntas = parseInt(document.getElementById('totalPreguntas').innerText);
+            document.getElementById('preguntaActual').innerText = preguntaActual + 1;
+            const porcentajeProgreso = ((preguntaActual + 1) / totalPreguntas) * 100;
+            document.getElementById('progressBar').style.width = `${porcentajeProgreso}%`;
+            
+            // Mostrar texto de la pregunta
+            const pregunta = preguntas[preguntaActual];
+            document.getElementById('pregunta').innerText = pregunta.texto;
+            
+            // Crear opciones con un orden aleatorio
+            const indices = [0, 1, 2, 3];
+            shuffle(indices);
+            
+            const opcionesHTML = indices.map(i => `
+                <button onclick="validarRespuesta(${i}, ${indices.indexOf(pregunta.correcta)})" 
+                    class="bg-white hover:bg-indigo-50 border border-gray-300 text-gray-700 py-3 px-4 rounded-lg text-left transition-all hover:shadow-md w-full">
+                    <span class="inline-block w-6 h-6 bg-indigo-100 text-indigo-800 rounded-full text-center mr-2">${['A', 'B', 'C', 'D'][i]}</span>
+                    ${pregunta.opciones[i]}
+                </button>
+            `).join('');
+            
+            document.getElementById('opciones').innerHTML = opcionesHTML;
+        }
+
+        // Función para validar respuesta seleccionada
+        function validarRespuesta(indiceSeleccionado, indiceCorrectaReordenado) {
+            // Deshabilitar todos los botones
+            const botones = document.querySelectorAll('#opciones button');
+            botones.forEach(boton => {
+                boton.disabled = true;
+                boton.classList.remove('hover:bg-indigo-50', 'hover:shadow-md');
+            });
+            
+            // Colorear todas las opciones
+            botones.forEach((boton, indice) => {
+                if (indice === indiceCorrectaReordenado) {
+                    // Respuesta correcta
+                    boton.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+                    boton.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
+                } else if (indice === indiceSeleccionado) {
+                    // Respuesta incorrecta seleccionada
+                    boton.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+                    boton.classList.add('bg-red-100', 'border-red-300', 'text-red-800');
+                }
+            });
+            
+            // Actualizar puntaje si es correcta
+            if (indiceSeleccionado === indiceCorrectaReordenado) {
+                puntaje++;
+                document.getElementById('puntaje').innerText = puntaje;
+                
+                // Agregar monedas por respuesta correcta
+                const monedasGanadas = 10 + Math.floor(Math.random() * 15); // Entre 10 y 25 monedas
+                monedas += monedasGanadas;
+                document.getElementById('monedas').innerText = monedas;
+                
+                // Mostrar animación de monedas ganadas (simplificada)
+                const btn = botones[indiceCorrectaReordenado];
+                btn.innerHTML += `<span class="ml-2 text-green-600 font-bold">+${monedasGanadas} <i class="fas fa-coins text-yellow-500"></i></span>`;
+            }
+            
+            // Mostrar explicación
+            document.getElementById('textoExplicacion').innerText = preguntas[preguntaActual].explicacion;
+            document.getElementById('explicacion').classList.remove('hidden');
+        }
+
+        // Evento para pasar a la siguiente pregunta
+        document.getElementById('siguientePregunta').addEventListener('click', () => {
+            const totalPreguntas = parseInt(document.getElementById('totalPreguntas').innerText);
+            
+            preguntaActual++;
+            
+            if (preguntaActual < totalPreguntas) {
+                mostrarPregunta();
+            } else {
+                // Quiz completado, mostrar resultados
+                mostrarResultadosQuiz();
+            }
+        });
+
+        // Función para mostrar los resultados del quiz
+        function mostrarResultadosQuiz() {
+            mostrarPantalla('pantallaResultados');
+            
+            const totalPreguntas = parseInt(document.getElementById('totalPreguntas').innerText);
+            const porcentajeAcierto = (puntaje / totalPreguntas) * 100;
+            
+            // Determinar icono según el puntaje
+            let icono, mensaje, clase;
+            if (porcentajeAcierto >= 80) {
+                icono = '🏆';
+                mensaje = '¡Excelente! Tienes potencial para la contaduría';
+                clase = 'text-green-600';
+            } else if (porcentajeAcierto >= 60) {
+                icono = '🎓';
+                mensaje = '¡Buen trabajo! Vas por buen camino';
+                clase = 'text-blue-600';
+            } else {
+                icono = '📚';
+                mensaje = '¡Sigue aprendiendo! La práctica hace al maestro';
+                clase = 'text-yellow-600';
+            }
+            
+            document.getElementById('iconoResultado').innerText = icono;
+            
+            // Mostrar resumen de resultados
+            const bonusNivel = Math.floor(porcentajeAcierto / 10);
+            nivel += bonusNivel;
+            document.getElementById('nivel').innerText = nivel;
+            
+            document.getElementById('resumenResultados').innerHTML = `
+                <h3 class="text-xl font-bold ${clase} mb-3">${mensaje}</h3>
+                <div class="space-y-3">
+                    <p class="flex justify-between border-b pb-2">
+                        <span>Respuestas correctas:</span>
+                        <span class="font-bold">${puntaje} de ${totalPreguntas}</span>
+                    </p>
+                    <p class="flex justify-between border-b pb-2">
+                        <span>Porcentaje de acierto:</span>
+                        <span class="font-bold">${porcentajeAcierto.toFixed(1)}%</span>
+                    </p>
+                    <p class="flex justify-between border-b pb-2">
+                        <span>Monedas ganadas:</span>
+                        <span class="font-bold">${monedas} <i class="fas fa-coins text-yellow-500"></i></span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span>Nivel alcanzado:</span>
+                        <span class="font-bold">${nivel} <i class="fas fa-trophy text-indigo-500"></i></span>
+                    </p>
+                </div>
+            `;
+        }
+
+        // Funciones para el simulador financiero
+        document.getElementById('btnCalcular').addEventListener('click', calcularResultados);
+
+        function calcularResultados() {
+            const ingresos = parseFloat(document.getElementById('ingresos').value) || 0;
+            const gastos = parseFloat(document.getElementById('gastos').value) || 0;
+            const marketing = parseFloat(document.getElementById('marketing').value) || 0;
+            const clientes = parseInt(document.getElementById('clientes').value) || 0;
+            
+            // Cálculos básicos
+            const gastosTotal = gastos + marketing;
+            const utilidadBruta = ingresos - gastosTotal;
+            
+            // Cálculo de impuestos (simulado)
+            let impuesto = 0;
+            let tasaImpuesto = 0;
+            if (utilidadBruta > 0) {
+                if (utilidadBruta <= 5000) {
+                    tasaImpuesto = 0.15; // 15%
+                } else if (utilidadBruta <= 15000) {
+                    tasaImpuesto = 0.25; // 25%
+                } else {
+                    tasaImpuesto = 0.30; // 30%
+                }
+                impuesto = utilidadBruta * tasaImpuesto;
+            }
+            
+            const utilidadNeta = utilidadBruta - impuesto;
+            
+            // Cálculo del ROI de marketing
+            const roiMarketing = marketing > 0 ? ((ingresos * 0.15) / marketing * 100).toFixed(1) : 0;
+            
+            // Cálculo del ingreso por cliente
+            const ingresoPorCliente = clientes > 0 ? (ingresos / clientes).toFixed(2) : 0;
+            
+            // Determinar estado financiero
+            let estadoFinanciero, claseEstado;
+            if (utilidadNeta > ingresos * 0.25) {
+                estadoFinanciero = "Excelente";
+                claseEstado = "text-green-600";
+            } else if (utilidadNeta > 0) {
+                estadoFinanciero = "Estable";
+                claseEstado = "text-blue-600";
+            } else {
+                estadoFinanciero = "En pérdida";
+                claseEstado = "text-red-600";
+            }
+            
+            // Mostrar resultados
+            document.getElementById('resultadoContenido').innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">Estado financiero:</span>
+                        <span class="font-bold ${claseEstado}">${estadoFinanciero}</span>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <h5 class="font-semibold mb-2 text-gray-700">Resumen Financiero</h5>
+                        <div class="space-y-2 text-sm">
+                            <p class="flex justify-between">
+                                <span>Ingresos:</span>
+                                <span class="font-medium">${ingresos.toFixed(2)}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>Gastos operativos:</span>
+                                <span class="font-medium">${gastos.toFixed(2)}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>Gastos de marketing:</span>
+                                <span class="font-medium">${marketing.toFixed(2)}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>Gastos totales:</span>
+                                <span class="font-medium">${gastosTotal.toFixed(2)}</span>
+                            </p>
+                            <hr>
+                            <p class="flex justify-between">
+                                <span>Utilidad antes de impuestos:</span>
+                                <span class="font-medium ${utilidadBruta >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${utilidadBruta.toFixed(2)}
+                                </span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>Impuestos (${(tasaImpuesto * 100).toFixed(0)}%):</span>
+                                <span class="font-medium">${impuesto.toFixed(2)}</span>
+                            </p>
+                            <p class="flex justify-between font-bold">
+                                <span>Utilidad neta:</span>
+                                <span class="${utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${utilidadNeta.toFixed(2)}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-indigo-50 rounded-lg p-3 shadow-sm">
+                        <h5 class="font-semibold mb-2 text-indigo-700">Indicadores de Gestión</h5>
+                        <div class="space-y-2 text-sm">
+                            <p class="flex justify-between">
+                                <span>Margen de utilidad:</span>
+                                <span class="font-medium">${ingresos > 0 ? (utilidadNeta / ingresos * 100).toFixed(1) + '%' : 'N/A'}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>ROI de marketing:</span>
+                                <span class="font-medium">${roiMarketing}%</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>Ingreso por cliente:</span>
+                                <span class="font-medium">${ingresoPorCliente}</span>
+                            </p>
+                            <p class="flex justify-between">
+                                <span>Punto de equilibrio:</span>
+                                <span class="font-medium">${(gastosTotal / 0.4).toFixed(2)}</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 italic">
+                        <p class="mb-1">💡 <strong>Consejo contable:</strong></p>
+                        ${obtenerConsejoContable(utilidadNeta, ingresos, gastos, marketing)}
+                    </div>
+                </div>
+            `;
+            
+            // Ganar monedas por usar el simulador
+            const monedasGanadas = 5 + Math.floor(Math.random() * 10);
+            monedas += monedasGanadas;
+            document.getElementById('monedas').innerText = monedas;
+            
+            // Mostrar mensaje de monedas ganadas temporalmente
+            const resultado = document.getElementById('resultado');
+            const mensajeMonedas = document.createElement('div');
+            mensajeMonedas.className = 'absolute top-2 right-2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm font-bold animate-bounce';
+            mensajeMonedas.innerText = `+${monedasGanadas} 🪙`;
+            resultado.style.position = 'relative';
+            resultado.appendChild(mensajeMonedas);
+            
+            setTimeout(() => {
+                mensajeMonedas.remove();
+            }, 3000);
+        }
+
+        // Función para obtener consejos contables contextuales
+        function obtenerConsejoContable(utilidadNeta, ingresos, gastos, marketing) {
+            const consejos = [
+                "Considera diversificar tus servicios contables para alcanzar diferentes segmentos de mercado y aumentar tus ingresos.",
+                "Evalúa la posibilidad de implementar software contable especializado para reducir el tiempo de procesamiento y mejorar la precisión.",
+                "Mantén registros detallados de tus gastos deducibles para optimizar tu declaración de impuestos.",
+                "Analiza los costos fijos y variables para identificar oportunidades de reducción sin afectar la calidad del servicio.",
+                "La contabilidad de costos te ayudará a entender mejor dónde se genera valor en tu práctica profesional.",
+                "Considera ofrecer servicios de asesoría fiscal además de la contabilidad tradicional para aumentar tus ingresos.",
+                "Invierte en capacitación continua para ofrecer servicios especializados de mayor valor agregado."
+            ];
+            
+            // Consejos basados en la situación financiera
+            if (utilidadNeta < 0) {
+                return "Revisa tu estructura de costos para identificar áreas de recorte sin comprometer la calidad del servicio. Considera aumentar las tarifas o buscar clientes que valoren más tus servicios profesionales.";
+            } else if (marketing < ingresos * 0.05) {
+                return "Tu inversión en marketing es relativamente baja. Considera aumentarla para atraer más clientes potenciales, especialmente si deseas expandir tu despacho contable.";
+            } else if (gastos > ingresos * 0.8) {
+                return "Tus gastos representan una proporción muy alta de tus ingresos. Analiza cada categoría de gasto y busca oportunidades para optimizar sin afectar la operación.";
+            } else {
+                // Consejo aleatorio si no hay situaciones específicas
+                return consejos[Math.floor(Math.random() * consejos.length)];
+            }
+        }
+
+        // Función para mezclar arrays (algoritmo Fisher-Yates)
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Inicializar la aplicación
+        mostrarPantalla('pantallaInicio');
+    </script>
+</body>
+</html>
+            
